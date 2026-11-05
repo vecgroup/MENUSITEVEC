@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#000d26] text-white font-sans antialiased;
+  }
+}
+
+.rockstar-grid {
+  background-image: radial-gradient(circle at 2px 2px, rgba(0,161,228,0.1) 1px, transparent 0);
+  background-size: 40px 40px;
+}
+
+.glass-card {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+}
+
+.rockstar-button {
+  @apply relative overflow-hidden bg-[#00A1E4] text-white font-black uppercase tracking-tighter px-8 py-4 transition-all hover:bg-white hover:text-[#003399] active:scale-95 rounded-2xl shadow-lg shadow-[#00A1E4]/20;
+}
+
+.rockstar-input {
+  @apply bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#00A1E4] transition-all font-medium;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-black;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/20 hover:bg-rockstar-yellow transition-all;
+}
+
+/* User requested style */
+div#root:nth-of-type(1) > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > h1:nth-of-type(1) {
+  color: #ffffff !important;
+}
+
+/* Rockstar-style animations */
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-rockstar-slide {
+  animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
