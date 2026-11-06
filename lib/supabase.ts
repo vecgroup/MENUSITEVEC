@@ -707,7 +707,7 @@ const realSupabase = {
         getAll: async (limit?: number) => {
             try {
                 if (limit) {
-                    const { data, error } = await leadsClient.from('leads_fechados').select('*').limit(limit).order('created_at', { ascending: false });
+                    const { data, error } = await leadsClient.from('leads_fechados').select('*').limit(limit).order('id', { ascending: false });
                     return { data: data ? data.map(l => mapDbToLead(l, true)) : [], error };
                 }
                 let allData: any[] = [];
@@ -1209,15 +1209,15 @@ const realSupabase = {
     proposals: {
         saveSettings: async (settings: any) => {
             try {
-                return await supabaseClient.from('crm_settings').upsert({ setting_key: 'proposal_settings', setting_value: JSON.stringify(settings) }, { onConflict: 'setting_key' });
+                return await supabaseClient.from('crm_settings').upsert({ id: 'proposal_settings', settings }, { onConflict: 'id' });
             } catch (e) {
                 return { error: e as any };
             }
         },
         getSettings: async () => { 
             try {
-                const { data } = await supabaseClient.from('crm_settings').select('setting_value').eq('setting_key', 'proposal_settings').maybeSingle(); 
-                return { data: data ? JSON.parse(data.setting_value) : null }; 
+                const { data } = await supabaseClient.from('crm_settings').select('settings').eq('id', 'proposal_settings').maybeSingle(); 
+                return { data: data ? data.settings : null }; 
             } catch (e) {
                 return { data: null, error: e as any };
             }
