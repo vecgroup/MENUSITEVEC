@@ -358,9 +358,11 @@ const mapDbToProfile = (d: any) => {
             rawAdmission = cached[d.id] || cached[d.email?.toLowerCase().trim()];
         } catch (_) {}
     }
+    const rawFullName = d.full_name || d.name || '';
+    const cleanName = rawFullName.toUpperCase().trim() === 'MARIABONINI' ? 'MARIA BONINI' : rawFullName;
     return {
         id: d.id,
-        name: d.full_name || d.name,
+        name: cleanName,
         email: d.email,
         role: normalizeRole(d.role),
         status: normalizeUserStatus(d.status),

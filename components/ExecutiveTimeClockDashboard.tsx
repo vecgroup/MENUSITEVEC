@@ -148,14 +148,15 @@ export const ExecutiveTimeClockDashboard: React.FC<ExecutiveDashboardProps> = ({
     try {
       const saved = localStorage.getItem('vecgroup_timeclock_excluded_user_ids');
       const list: string[] = saved ? JSON.parse(saved) : [];
-      // Garantir que Yasmin, Rafael Pasqual e Sabrina Sena nunca sejam excluídos por padrão ou cache antigo
+      // Garantir que Yasmin, Rafael Pasqual, Sabrina Sena e Maria Bonini nunca sejam excluídos por padrão ou cache antigo
       return list.filter(id => {
         const lower = id.toLowerCase();
         return !lower.includes('yasmin') && 
                !lower.includes('rafael') && 
                !lower.includes('pasqual') && 
                !lower.includes('sabrina') && 
-               !lower.includes('sena');
+               !lower.includes('sena') &&
+               !lower.includes('bonini');
       });
     } catch {
       return [];
@@ -1053,7 +1054,6 @@ export const ExecutiveTimeClockDashboard: React.FC<ExecutiveDashboardProps> = ({
       const rName = normalizeName(r.userName);
       const uName = normalizeName(targetUser.name);
       if (rName === uName && rName.length > 2) return true;
-      if (rName.length > 3 && uName.length > 3 && (rName.includes(uName) || uName.includes(rName))) return true;
 
       // Unify Rafael Pasqual (e.g. WELERSON RAFAEL GOMES PASQUAL and RAFAEL PASQUAL)
       const rIsRafael = rName.includes('rafael') && rName.includes('pasqual');
@@ -1064,6 +1064,25 @@ export const ExecutiveTimeClockDashboard: React.FC<ExecutiveDashboardProps> = ({
       const rIsSabrina = rName.includes('sabrina') && rName.includes('sena');
       const uIsSabrina = uName.includes('sabrina') && uName.includes('sena');
       if (rIsSabrina && uIsSabrina) return true;
+
+      // Se r.userId existe e não bate com targetUser (ex: ID de outro usuário), não fazer match por substring
+      if (r.userId && targetUser.id && String(r.userId).toLowerCase().trim() !== String(targetUser.id).toLowerCase().trim()) {
+        return false;
+      }
+
+      // Evita colisão entre Maria ("maria") e Maria Bonini ("mariabonini" ou "maria bonini")
+      const isMariaExact1 = rName === 'maria';
+      const isMariaExact2 = uName === 'maria';
+      const isBonini1 = rName.includes('bonini');
+      const isBonini2 = uName.includes('bonini');
+      if ((isMariaExact1 && isBonini2) || (isMariaExact2 && isBonini1)) {
+        return false;
+      }
+
+      if (rName.length > 3 && uName.length > 3 && (rName.includes(uName) || uName.includes(rName))) {
+        if (rName === 'maria' || uName === 'maria') return false;
+        return true;
+      }
     }
     return false;
   };
@@ -1156,6 +1175,40 @@ export const ExecutiveTimeClockDashboard: React.FC<ExecutiveDashboardProps> = ({
         const existNorm = normalizeName(existing.name);
         const existEmail = (existing.email || '').toLowerCase().trim();
 
+        // Se ambos têm emails cadastrados e são diferentes, são colaboradores distintos!
+        if (targetEmail && existEmail && targetEmail !== existEmail) {
+          if (targetHasRafael && (
+            (existNorm.includes('rafael') && existNorm.includes('pasqual')) ||
+            (existEmail.includes('rafael') && existEmail.includes('pasqual'))
+          )) {
+            return true;
+          }
+          if (targetHasSabrina && (
+            (existNorm.includes('sabrina') && existNorm.includes('sena')) ||
+            (existEmail.includes('sabrina') && existEmail.includes('sena'))
+          )) {
+            return true;
+          }
+          continue;
+        }
+
+        // Se ambos têm IDs cadastrados e são diferentes, não deduplicar
+        if (targetId && existing.id && targetId !== existing.id) {
+          if (targetHasRafael && (
+            (existNorm.includes('rafael') && existNorm.includes('pasqual')) ||
+            (existEmail.includes('rafael') && existEmail.includes('pasqual'))
+          )) {
+            return true;
+          }
+          if (targetHasSabrina && (
+            (existNorm.includes('sabrina') && existNorm.includes('sena')) ||
+            (existEmail.includes('sabrina') && existEmail.includes('sena'))
+          )) {
+            return true;
+          }
+          continue;
+        }
+
         // Check if both are Rafael Pasqual (e.g. WELERSON RAFAEL GOMES PASQUAL vs RAFAEL PASQUAL)
         if (targetHasRafael && (
           (existNorm.includes('rafael') && existNorm.includes('pasqual')) ||
@@ -1172,9 +1225,17 @@ export const ExecutiveTimeClockDashboard: React.FC<ExecutiveDashboardProps> = ({
           return true;
         }
 
+        // Evita colisão entre Maria e Maria Bonini
+        const isMariaExact1 = existNorm === 'maria';
+        const isMariaExact2 = targetNormName === 'maria';
+        const isBonini1 = existNorm.includes('bonini');
+        const isBonini2 = targetNormName.includes('bonini');
+        if ((isMariaExact1 && isBonini2) || (isMariaExact2 && isBonini1)) {
+          continue;
+        }
+
         if (targetNormName && existing.name) {
           if (existNorm === targetNormName) return true;
-          if (existNorm.length > 3 && targetNormName.length > 3 && (existNorm.includes(targetNormName) || targetNormName.includes(existNorm))) return true;
         }
       }
       return false;

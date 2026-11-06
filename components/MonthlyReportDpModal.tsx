@@ -169,7 +169,6 @@ export const MonthlyReportDpModal: React.FC<MonthlyReportDpModalProps> = ({
       const rName = r.userName.toLowerCase().trim();
       const uName = targetUser.name.toLowerCase().trim();
       if (rName === uName && rName.length > 2) return true;
-      if (rName.length > 3 && uName.length > 3 && (rName.includes(uName) || uName.includes(rName))) return true;
 
       const rIsRafael = rName.includes('rafael') && rName.includes('pasqual');
       const uIsRafael = uName.includes('rafael') && uName.includes('pasqual');
@@ -178,6 +177,23 @@ export const MonthlyReportDpModal: React.FC<MonthlyReportDpModalProps> = ({
       const rIsSabrina = rName.includes('sabrina') && rName.includes('sena');
       const uIsSabrina = uName.includes('sabrina') && uName.includes('sena');
       if (rIsSabrina && uIsSabrina) return true;
+
+      if (r.userId && targetUser.id && String(r.userId).toLowerCase().trim() !== String(targetUser.id).toLowerCase().trim()) {
+        return false;
+      }
+
+      const isMariaExact1 = rName === 'maria';
+      const isMariaExact2 = uName === 'maria';
+      const isBonini1 = rName.includes('bonini');
+      const isBonini2 = uName.includes('bonini');
+      if ((isMariaExact1 && isBonini2) || (isMariaExact2 && isBonini1)) {
+        return false;
+      }
+
+      if (rName.length > 3 && uName.length > 3 && (rName.includes(uName) || uName.includes(rName))) {
+        if (rName === 'maria' || uName === 'maria') return false;
+        return true;
+      }
     }
     return false;
   };

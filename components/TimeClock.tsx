@@ -1629,7 +1629,7 @@ const TimeClock: React.FC<TimeClockProps> = ({ user, allUsers, onBack }) => {
     }
     
     return records
-      .filter(r => r.date && r.date.startsWith(historyMonth) && allUsers.some(u => u.id === r.userId && isEligibleVendedor(u)))
+      .filter(r => r.date && r.date.startsWith(historyMonth) && allUsers.some(u => (u.id === r.userId || (u.email && r.userId && String(r.userId).toLowerCase() === u.email.toLowerCase())) && isEligibleVendedor(u)))
       .sort((a, b) => (b.date || '').localeCompare(a.date || '') || (a.userName || '').localeCompare(b.userName || ''));
   }, [records, historyMonth, isPrivileged, user.id, allUsers]);
 
